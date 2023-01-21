@@ -1,4 +1,4 @@
-import React, {useCallback} from 'react';
+import React, { useState, useCallback } from 'react';
 import AppBar from '@mui/material/AppBar';
 import Button from '@mui/material/Button';
 import CasinoIcon from '@mui/icons-material/Casino';
@@ -16,6 +16,15 @@ import Container from '@mui/material/Container';
 import Link from '@mui/material/Link';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { useNavigate } from 'react-router-dom';
+import { db } from '../firebase';
+import { useContext } from 'react';
+import { UserContext } from '../contexts/UserContext'
+/* import {
+  getAuth, 
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword
+} from "firebase/auth"; */
+
 
 function Copyright() {
   return (
@@ -41,9 +50,14 @@ const styles = {
   },
 };
 
-export default function Album() {
+export default function Home() {
   const navigate = useNavigate();
-  const handleOnClick = useCallback(() => navigate('login', {replace: true}), [navigate]);
+  const handleLoginClick = useCallback(() => navigate('login', {replace: true}), [navigate]);
+  const { user } = useContext(UserContext);
+
+  const faito = () => { 
+    console.log("Home console log: ", user.uid)
+  };
 
   return (
     <ThemeProvider theme={theme}>
@@ -56,7 +70,7 @@ export default function Album() {
               Legitimate Vibeo Game
             </Typography>
           </Box>
-          <Button variant="outlined" onClick={handleOnClick}>Login</Button>
+          <Button variant="outlined" onClick={handleLoginClick}>Login</Button>
         </Toolbar>
       </AppBar>
       <main>
@@ -88,7 +102,7 @@ export default function Album() {
               justifyContent="center"
             >
               <Button variant="contained">Roll Gacha</Button>
-              <Button variant="outlined">Fight (Choose Violence)</Button>
+              <Button variant="outlined" onClick={faito}>Fight (Choose Violence)</Button>
             </Stack>
           </Container>
         </Box>

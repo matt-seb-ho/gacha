@@ -13,6 +13,10 @@ import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
+import { useContext } from "react";
+import { UserContext } from "../contexts/UserContext";
+import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
+import { useNavigate } from "react-router-dom";
 
 function Copyright(props) {
   return (
@@ -30,13 +34,21 @@ function Copyright(props) {
 const theme = createTheme();
 
 export default function SignUp() {
-  const handleSubmit = (event) => {
+  const auth = getAuth();
+  const navigate = useNavigate();
+  const { setUser } = useContext(UserContext);
+  const handleSubmit = async (event) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
-    console.log({
-      email: data.get('email'),
-      password: data.get('password'),
-    });
+    console.log("sign up print statement");
+    // TODO add a new username to firebase
+    const userCredential = await createUserWithEmailAndPassword(
+      auth, 
+      data.get('email'),
+      data.get('password'),
+    );
+    setUser(userCredential.user);
+    navigate('/home', {replace: true});
   };
 
   return (

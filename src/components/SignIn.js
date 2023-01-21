@@ -1,4 +1,4 @@
-import * as React from 'react';
+import { useContext } from 'react';
 import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
 import CssBaseline from '@mui/material/CssBaseline';
@@ -13,6 +13,9 @@ import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
+import { UserContext } from "../contexts/UserContext";
+import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
+import { useNavigate } from "react-router-dom";
 
 function Copyright(props) {
   return (
@@ -30,13 +33,20 @@ function Copyright(props) {
 const theme = createTheme();
 
 export default function SignIn() {
-  const handleSubmit = (event) => {
+  const auth = getAuth();
+  const navigate = useNavigate();
+  const { setUser } = useContext(UserContext);
+  const handleSubmit = async (event) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
-    console.log({
-      email: data.get('email'),
-      password: data.get('password'),
-    });
+    console.log("sign in print statement");
+    const userCredential = await signInWithEmailAndPassword(
+      auth, 
+      data.get('email'),
+      data.get('password'),
+    );
+    setUser(userCredential.user);
+    navigate('/home', {replace: true});
   };
 
   return (
