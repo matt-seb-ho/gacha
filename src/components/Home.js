@@ -88,7 +88,7 @@ export default function Album() {
               justifyContent="center"
             >
               <Button variant="contained">Roll Gacha</Button>
-              <Button variant="outlined">Fight People (Choose Violence)</Button>
+              <Button variant="outlined">Fight (Choose Violence)</Button>
             </Stack>
           </Container>
         </Box>
