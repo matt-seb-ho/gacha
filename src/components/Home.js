@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useContext, useState, useCallback } from 'react';
 import AppBar from '@mui/material/AppBar';
 import Button from '@mui/material/Button';
 import CasinoIcon from '@mui/icons-material/Casino';
@@ -9,6 +9,7 @@ import CardMedia from '@mui/material/CardMedia';
 import CssBaseline from '@mui/material/CssBaseline';
 import Grid from '@mui/material/Grid';
 import Stack from '@mui/material/Stack';
+import Chip from '@mui/material/Chip';
 import Box from '@mui/material/Box';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
@@ -17,13 +18,9 @@ import Link from '@mui/material/Link';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { useNavigate } from 'react-router-dom';
 import { db } from '../firebase';
-import { useContext } from 'react';
 import { UserContext } from '../contexts/UserContext'
-/* import {
-  getAuth, 
-  signInWithEmailAndPassword,
-  createUserWithEmailAndPassword
-} from "firebase/auth"; */
+import Gacha from '../components/Gacha';
+import { getAuth, signOut } from "firebase/auth";
 
 
 function Copyright() {
@@ -52,12 +49,30 @@ const styles = {
 
 export default function Home() {
   const navigate = useNavigate();
-  const handleLoginClick = useCallback(() => navigate('login', {replace: true}), [navigate]);
+  const auth = getAuth();
+  const navToLogin = useCallback(() => navigate('login', {replace: true}), [navigate]);
+  const handleLogoutClick = useCallback(() => {
+    // db.auth().signOut(); 
+    signOut(auth);
+    navigate('login', {replace: true})
+  }, [navigate]);
   const { user } = useContext(UserContext);
 
   const faito = () => { 
     console.log("Home console log: ", user.uid)
   };
+  
+  const { 
+    povertyPoints, 
+    premiumPoints, 
+    name
+    // setPovertyPoints, 
+    // setPremiumPoints
+  } = useContext(UserContext);
+  // const [gold, setGold] = useState(0);
+  const [gachaOpen, setGachaOpen] = useState(false);
+  const handleGachaOpen = () => {user? setGachaOpen(true) : navToLogin()};
+  const handleGachaClose = () => setGachaOpen(false);
 
   return (
     <ThemeProvider theme={theme}>
@@ -70,7 +85,21 @@ export default function Home() {
               Legitimate Vibeo Game
             </Typography>
           </Box>
-          <Button variant="outlined" onClick={handleLoginClick}>Login</Button>
+          {
+            user ? (
+              <p>
+                Welcome, {name} 
+                <Button 
+                  variant="outlined" 
+                  color="error" 
+                  sx={{ml: "10px"}}
+                  onClick={handleLogoutClick}
+                >Log out</Button>
+              </p>
+            ) : (         
+              <Button variant="outlined" onClick={navToLogin}>Login</Button>
+            )
+          }
         </Toolbar>
       </AppBar>
       <main>
@@ -101,8 +130,18 @@ export default function Home() {
               spacing={2}
               justifyContent="center"
             >
-              <Button variant="contained">Roll Gacha</Button>
+              <Chip label={`Poverty Points ${povertyPoints}`} />
+              <Chip label={`Premium Points ${premiumPoints}`} variant="outlined" />
+            </Stack>
+            <Stack
+              sx={{ pt: 4 }}
+              direction="row"
+              spacing={2}
+              justifyContent="center"
+            >
+              <Button variant="contained" onClick={handleGachaOpen}>Roll Gacha</Button>
               <Button variant="outlined" onClick={faito}>Fight (Choose Violence)</Button>
+              <Gacha open={gachaOpen} handleClose={handleGachaClose} />
             </Stack>
           </Container>
         </Box>

@@ -15,6 +15,12 @@ import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { UserContext } from "../contexts/UserContext";
 import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
+import { db } from '../firebase';
+import { 
+  // collection, 
+  doc,
+  getDoc
+} from "firebase/firestore";
 import { useNavigate } from "react-router-dom";
 
 function Copyright(props) {
@@ -35,18 +41,39 @@ const theme = createTheme();
 export default function SignIn() {
   const auth = getAuth();
   const navigate = useNavigate();
-  const { setUser } = useContext(UserContext);
+  const { 
+    setUser,
+    setName,
+    setPovertyPoints,
+    setPremiumPoints,
+    setRoster
+  } = useContext(UserContext);
   const handleSubmit = async (event) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
     console.log("sign in print statement");
-    const userCredential = await signInWithEmailAndPassword(
-      auth, 
-      data.get('email'),
-      data.get('password'),
-    );
-    setUser(userCredential.user);
-    navigate('/home', {replace: true});
+    try {
+      const userCredential = await signInWithEmailAndPassword(
+        auth, 
+        data.get('email'),
+        data.get('password'),
+      );
+      
+      console.log("user", userCredential.user);
+      const docRef = doc(db, "users", userCredential.user.uid);
+      const docSnap = await getDoc(docRef);
+      const userData = docSnap.data();
+      setPovertyPoints(userData.povertyPoints);
+      setPremiumPoints(userData.premiumPoints);
+      setRoster(userData.roster);
+      console.log("login roster", userData.roster);
+
+      setUser(userCredential.user);
+      setName(userData.username);
+      navigate('/home', {replace: true});
+    } catch (error) {
+      console.log("login error: ", error);
+    }
   };
 
   return (

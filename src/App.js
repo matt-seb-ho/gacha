@@ -9,9 +9,21 @@ import { UserContext } from './contexts/UserContext';
 
 function App() {
   const [user, setUser] = useState(null);
+  const [name, setName] = useState(null);
+  const [povertyPoints, setPovertyPoints] = useState(0);
+  const [premiumPoints, setPremiumPoints] = useState(0);
+  const [dirt, setDirt] = useState(0);
+  const [roster, setRoster] = useState(null);
 
   return (
-    <UserContext.Provider value={{ user, setUser }}>
+    <UserContext.Provider value={{ 
+      user, setUser, 
+      name, setName,
+      povertyPoints, setPovertyPoints, 
+      premiumPoints, setPremiumPoints,
+      dirt, setDirt,
+      roster, setRoster
+    }}>
       <BrowserRouter>
         <div className="App">
           <Routes>

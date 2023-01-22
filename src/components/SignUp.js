@@ -15,7 +15,12 @@ import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { useContext } from "react";
 import { UserContext } from "../contexts/UserContext";
-import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
+import { 
+  getAuth, 
+  createUserWithEmailAndPassword
+} from "firebase/auth";
+import { db } from '../firebase';
+import { doc, setDoc } from "firebase/firestore";
 import { useNavigate } from "react-router-dom";
 
 function Copyright(props) {
@@ -36,20 +41,47 @@ const theme = createTheme();
 export default function SignUp() {
   const auth = getAuth();
   const navigate = useNavigate();
-  const { setUser } = useContext(UserContext);
+  const { 
+    setUser, 
+    setName, 
+    setRoster,
+    setPovertyPoints,
+    setPremiumPoints
+  } = useContext(UserContext);
   const handleSubmit = async (event) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
     console.log("sign up print statement");
     // TODO add a new username to firebase
-    const userCredential = await createUserWithEmailAndPassword(
-      auth, 
-      data.get('email'),
-      data.get('password'),
-    );
-    setUser(userCredential.user);
-    navigate('/home', {replace: true});
+    try {
+      const userCredential = await createUserWithEmailAndPassword(
+        auth, 
+        data.get('email'),
+        data.get('password'),
+      );
+
+      // create new document 
+      await setDoc(
+        doc(db, "users", userCredential.user.uid),
+        {
+          id: userCredential.user.uid,
+          username: data.get('username'),
+          povertyPoints: 1000,
+          premiumPoints: 10,
+          roster: {}
+        }
+      );
+      setUser(userCredential.user);
+      setName(data.get('username'));
+      setPovertyPoints(1000);
+      setPremiumPoints(10);
+      setRoster({});
+      navigate('/home', {replace: true});
+    } catch (error) {
+      console.log("signup error: ", error);
+    }
   };
+
 
   return (
     <ThemeProvider theme={theme}>
